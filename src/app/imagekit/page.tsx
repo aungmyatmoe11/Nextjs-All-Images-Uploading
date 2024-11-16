@@ -4,7 +4,7 @@ import ImageKitThumbnail from "@/components/imagekit-thumbnail"
 import ImagekitUploader from "@/components/imagekit-uploader"
 import { UploadResponse } from "imagekit/dist/libs/interfaces"
 import { IKUpload, ImageKitProvider } from "imagekitio-next"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { createImageKit } from "../actions/imagekit-actions"
 
 const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY
@@ -37,7 +37,10 @@ export default function ImageKit() {
       if (response.ok) {
         console.log("Image deleted:", result)
         // Remove image from state or perform other UI updates
-        setFiles((prev) => prev.filter((file) => file.fileId !== fileId))
+        const filteredFiles = files.filter((file) => file.fileId !== fileId)
+
+        setFiles(filteredFiles)
+        localStorage.setItem("files", JSON.stringify(filteredFiles))
       } else {
         console.error("Failed to delete image:", result)
       }
@@ -47,6 +50,11 @@ export default function ImageKit() {
       setIsDeleting(false)
     }
   }
+
+  useEffect(() => {
+    const localFiles = JSON.parse(localStorage.getItem("files") || "[]")
+    setFiles(localFiles)
+  }, [])
 
   return (
     <div>
@@ -58,6 +66,7 @@ export default function ImageKit() {
           <ImagekitUploader
             onUploadStart={() => setIsUploading(true)}
             onSuccess={(file) => {
+              localStorage.setItem("files", JSON.stringify([...files, file]))
               setFiles((prev) => [...prev, file])
               setIsUploading(false)
             }}
