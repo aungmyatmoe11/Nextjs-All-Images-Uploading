@@ -14,6 +14,11 @@ const Schema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    files: [Object],
+    multiple: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
